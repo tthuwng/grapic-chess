@@ -22,6 +22,12 @@ class GameState():
                               }
         self.whiteToMove = True
         self.moveLog = []
+
+        # keep track of king's location
+        self.whiteKingLocation = (7,4)
+        self.blackKingLocation = (0,4)
+        self.checkMate = False
+        self.staleMate = False
     
     def makeMove(self, move):
         '''
@@ -32,12 +38,22 @@ class GameState():
             self.board[move.endRow][move.endCol] = move.pieceMoved
             self.moveLog.append(move) # log the move so we can undo it later
             self.whiteToMove = not self.whiteToMove #swap player
+            # update the king's location if moved
+            if move.pieceMoved == "wk":
+                self.whiteKingLocation = (move.endRow, move.endCol)
+            if move.pieceMoved == "bk":
+                self.blackKingLocation = (move.endRow, move.endCol)
     def undoMove(self):
         if len(self.moveLog) != 0: # make sure there is a move to undo
             move = self.moveLog.pop()
             self.board[move.startRow][move.startCol] = move.pieceMoved
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove # switch turns back
+            #update the king's location if undo
+            if move.pieceMoved == "wk":
+                self.whiteKingLocation = (move.startRow, move.startCol)
+            if move.pieceMoved == "bk":
+                self.blackKingLocation = (move.startRow, move.startCol)
     
     def getValidMoves(self):
         '''
@@ -49,7 +65,50 @@ class GameState():
             if your king is safe, it's a valid move and add it to list
         return the list of valid moves only
         '''
-        return self.getAllPossibleMoves() 
+        # 1. generate all possible moves
+        moves = self.getAllPossibleMoves()
+
+        # 2. for each move, make the move
+        for i in range(len(moves)-1, -1, -1): #whemn removing from a list, go backwards to avoid errors
+            self.makeMove(moves[i])
+
+            # 3. generate all opponent's moves
+
+            # 4. for each of your opponents'move, see if they attack your king
+            self.whiteToMove = not self.whiteToMove
+            if self.inCheck():
+                moves.remove(moves[i]) # 5. if they do attack your king -> not a valid move
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
+        if len(moves) == 0: #either checkmate or stalemate
+            if self.inCheck():
+                self.checkMate = True:
+            else:
+                self.staleMate = True
+        else:
+            self.checkMate = False
+            self.staleMale = False
+        
+        return moves
+    
+    def inCheck(self):
+        '''Determine if the current player is in check
+        '''
+        if self.whiteToMove:
+            return self.squareUnderAttack(self.whiteKingLocation[0], self.whiteKingLocation[1])
+        else:
+            return self.squareUnderAttack(self.blackKingLocation[0], self.blackKingLocation[1])
+
+
+    def squareUnderAttack(self, row, col):
+        '''Determine if t he enemy can attack the square row, col'''
+        self.whiteToMove = not self.whiteToMove # switch to opponent's turn
+        oppMoves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove
+        for move in oppMoves:
+            if move.endRow == row and move.endCol == col: #square is under attack
+                return True
+        return False
 
     def getAllPossibleMoves(self):
         '''
@@ -136,16 +195,16 @@ class GameState():
         Get all the bishop moves for the pawn located at row, col and add these moves to the list
         '''
         directions = ((-1, -1), (-1, 1), (1, 1), (1, -1)) #digaonals: up/left up/right down/right down/left
-        enemy_color = "b" if self.whiteToMove else "w"    
+        enemyColor = "b" if self.whiteToMove else "w"    
         for direction in directions:
             for i in range(1, 8):
                 endRow = row + direction[0] * i
                 endCol = col + direction[1] * i
                 if 0 <= endRow <= 7 and 0 <= endCol <=7: #check if the move is on board
                     endPiece = self.board[endRow][endCol]
-                    if endPiece == "--": #empty space is valid
+                    if endPiece == ".": #empty space is valid
                         moves.append(Move((row, col), (endRow, endCol), self.board))
-                    elif endPiece[0] == enemy_color: #capture enemy piece
+                    elif endPiece[0] == enemyColor: #capture enemy piece
                         moves.append(Move((row, col), (endRow, endCol), self.board))
                         break
                     else: #friendly piece
