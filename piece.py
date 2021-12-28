@@ -1,4 +1,3 @@
-from game_constants import *  # things like WINDOW_WIDTH, MAX_SPEED, etc.
 from graphics2 import *
 
 

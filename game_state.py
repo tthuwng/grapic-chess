@@ -1,4 +1,11 @@
+"""
+game_state
+Storing all the information about the current state of chess game.
+keep move log.
+"""
 
+
+from move import *
 
 class GameState():
     def __init__(self):
@@ -13,6 +20,31 @@ class GameState():
             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
             ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"],
         ]
+        # White: Mate in 2
+        # [
+        #     ["bq",  ".",  "bn",  "br",  "br",  "bk",  ".",  "."],
+        #     [".",  ".",  ".",  ".",  ".",  ".",  "bp",  "bp"],
+        #     [".",  ".",  ".",  ".",  ".",  "bp",  "bb",  "bb"],
+        #     [".",  ".",  ".",  ".",  ".",  ".",  ".",  "."],
+        #     [".",  ".",  ".",  ".",  ".",  ".",  ".",  "."],
+        #     [".",  "wb",  ".",  ".",  ".",  ".",  ".",  "."],
+        #     [".",  ".",  ".",  "wb",  ".",  "wk",  ".",  "."],
+        #     [".",  ".",  ".",  ".",  "wr",  "wq",  ".",  "."],
+        # ]
+
+        # [
+        #     ["br", "bn", "bb", "bq", "bk", "bb", "bn", "br"],
+        #     ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+        #     [".",  ".",  ".",  ".",  ".",  ".",  ".",  "."],
+        #     [".",  ".",  ".",  ".",  ".",  ".",  ".",  "."],
+        #     [".",  ".",  ".",  ".",  ".",  ".",  ".",  "."],
+        #     [".",  ".",  ".",  ".",  ".",  ".",  ".",  "."],
+        #     ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
+        #     ["wr", "wn", "wb", "wq", "wk", "wb", "wn", "wr"],
+        # ]
+
+
+
         self.moveFunctions = {'p': self.getPawnMoves,
                               'r': self.getRookMoves,
                               'n': self.getKnightMoves,
@@ -31,9 +63,9 @@ class GameState():
         self.enpassantPossible = () # coord for the square where en passant is possible
     
     def makeMove(self, move):
-        '''
+        """
         take a move as a parameter and executes it (this will not work for castling & en-passant)
-        '''
+        """
         if self.board[move.startRow][move.startCol] != '.':
             self.board[move.startRow][move.startCol] = "."
             self.board[move.endRow][move.endCol] = move.pieceMoved
@@ -60,6 +92,9 @@ class GameState():
                 self.enpassantPossible = ()
 
     def undoMove(self):
+        """
+        Undo the last move
+        """
         if len(self.moveLog) != 0: # make sure there is a move to undo
             move = self.moveLog.pop()
             self.board[move.startRow][move.startCol] = move.pieceMoved
@@ -81,7 +116,7 @@ class GameState():
             
     
     def getValidMoves(self):
-        '''
+        """
         All moves considering checks
         for each possible move, check to see if it's a valid move:
             make the move
@@ -89,7 +124,7 @@ class GameState():
             see if any of the moves attack your king
             if your king is safe, it's a valid move and add it to list
         return the list of valid moves only
-        '''
+        """
         tempEnpassantPossible = self.enpassantPossible
 
         # 1. generate all possible moves
@@ -119,8 +154,8 @@ class GameState():
         return moves
     
     def inCheck(self):
-        '''Determine if the current player is in check
-        '''
+        """Determine if the current player is in check
+        """
         if self.whiteToMove:
             return self.squareUnderAttack(self.whiteKingLocation[0], self.whiteKingLocation[1])
         else:
@@ -128,7 +163,7 @@ class GameState():
 
 
     def squareUnderAttack(self, row, col):
-        '''Determine if t he enemy can attack the square row, col'''
+        """Determine if t he enemy can attack the square row, col"""
         self.whiteToMove = not self.whiteToMove # switch to opponent's turn
         oppMoves = self.getAllPossibleMoves()
         self.whiteToMove = not self.whiteToMove
@@ -138,9 +173,9 @@ class GameState():
         return False
 
     def getAllPossibleMoves(self):
-        '''
+        """
         All moves without considering checks
-        '''
+        """
         moves = []
         for row in range(len(self.board)):
             for col in range(len(self.board[row])):
@@ -152,9 +187,9 @@ class GameState():
         return moves
 
     def getPawnMoves(self, row, col, moves):
-        '''
+        """
         Get all the pawn moves for the pawn located at row, col and add these moves to the list
-        '''
+        """
         if self.whiteToMove: #white pawn moves
             if self.board[row-1][col] == ".": # 1 square pawn advance
                 moves.append(Move((row, col) , (row-1, col), self.board))
@@ -190,9 +225,9 @@ class GameState():
             
 
     def getRookMoves(self, row, col, moves):
-        '''
+        """
         Get all the rook moves for the pawn located at row, col and add these moves to the list
-        '''
+        """
         directions = ((-1, 0), (0, -1), (1, 0), (0, 1)) #up, left, down, right
         enemy_color = "b" if self.whiteToMove else "w"
         for direction in directions:
@@ -212,9 +247,9 @@ class GameState():
                     break
 
     def getKnightMoves(self, row, col, moves):
-        '''
+        """
         Get all the knight moves for the pawn located at row, col and add these moves to the list
-        '''
+        """
         knight_moves = ((-2, -1), (-2, 1), (-1, 2), (1, 2), (2, -1), (2, 1), (-1, -2), (1, -2)) #up/left up/right right/up right/down down/left down/right left/up left/down
         ally_color = "w" if self.whiteToMove else "b"
         for move in knight_moves:
@@ -226,9 +261,9 @@ class GameState():
                     moves.append(Move((row, col), (endRow, endCol), self.board))
 
     def getBishopMoves(self, row, col, moves):
-        '''
+        """
         Get all the bishop moves for the pawn located at row, col and add these moves to the list
-        '''
+        """
         directions = ((-1, -1), (-1, 1), (1, 1), (1, -1)) #digaonals: up/left up/right down/right down/left
         enemyColor = "b" if self.whiteToMove else "w"    
         for direction in directions:
@@ -248,16 +283,16 @@ class GameState():
                     break
 
     def getQueenMoves(self, row, col, moves):
-        '''
+        """
         Get all the queen moves for the pawn located at row, col and add these moves to the list
-        '''
+        """
         self.getBishopMoves(row, col, moves)
         self.getRookMoves(row, col, moves)
 
     def getKingMoves(self, row, col, moves):
-        '''
+        """
         Get all the king moves for the pawn located at row, col and add these moves to the list
-        '''
+        """
         king_moves = ((-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1))
         ally_color = "w" if self.whiteToMove else "b"
         for move in king_moves:
@@ -267,52 +302,3 @@ class GameState():
                 endPiece = self.board[endRow][endCol]
                 if endPiece[0] != ally_color:
                     moves.append(Move((row, col), (endRow, endCol), self.board))
-class Move():
-    '''
-    '''
-
-    ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
-    rowsToRanks = {v: k for k,v in ranksToRows.items()}
-
-    filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
-    colsToFiles = {v: k for k,v in filesToCols.items()}
-    def __init__(self, startSq, endSq, board, isEnpassantMove = False):
-        '''
-        Param: startSq - tuple
-        Param: endSq - tuple
-        Param: board (make sure the move is valid)
-        '''
-        self.startRow = startSq[0] # 3
-        self.startCol = startSq[1] # 6
-        self.endRow = endSq[0] # 3
-        self.endCol = endSq[1] # 4
-        self.pieceMoved = board[self.startRow][self.startCol]
-        self.pieceCaptured = board[self.endRow][self.endCol] # could be "."
-        self.isPawnPromotion = (self.pieceMoved == 'wp' and self.endRow == 0) or (self.pieceMoved == 'bp' and self.endRow == 7)
-        self.isEnpassantMove =  isEnpassantMove #self.pieceMoved[1] == 'p' and (self.endRow, self.endCol) == isEnpassantMove
-        if self.isEnpassantMove:
-            self.pieceCaptured = 'wp' if self.pieceMoved =='bp' else 'bp'
-        self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol
-    '''
-    Overriding the equals method
-    '''
-    def __eq__(self, other):
-        if isinstance(other, Move):
-            return self.moveID == other.moveID
-        return False
-
-
-    def getChessNotation(self):
-        '''
-        Make chess move to real chess notation
-
-        '''
-        return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
-    
-    def getRankFile(self, row, col):
-        '''
-        Helper function to convert row, col to rank file
-        0, 0 -> a8
-
-        '''
-        return self.colsToFiles[col] + self.rowsToRanks[row]
