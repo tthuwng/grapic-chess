@@ -1,8 +1,11 @@
 # Graphic Chess
 
 Graphic Chess is a GUI chess game implemented in simple graphics.py of python
-<img src="https://github.com/tthuwng/grapic-chess/blob/main/assets/demo-1.png" width="300" />
-<img src="https://github.com/tthuwng/grapic-chess/blob/main/assets/demo-2.png" width="300" />
+
+<p align="center">
+    <img src="assets/demo-1.png" width="300" />
+    <img src="assets/demo-2.png" width="352" />
+</p>
 
 ## Installation
 
@@ -17,15 +20,13 @@ Enjoy the game!
 ## Features
 
 - Play in 3 different modes:
-    - Human vs Human
-    - Human vs (dumb) AI
-    - AI vs AI
+  - Human vs Human
+  - Human vs (dumb) AI
+  - AI vs AI
 - Undo and Reset the game using "z" and "r" key
 - Highlighting moves
 - Handling pawn promotion & enpassant
 - Dumb AI
-
-
 
 ## Instructions
 
