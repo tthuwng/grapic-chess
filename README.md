@@ -1,6 +1,16 @@
 # Graphic Chess
 
-Graphic Chess is a GUI chess game implemented in python
+Graphic Chess is a GUI chess game implemented in simple graphics.py of python
+
+## Installation
+
+Install Graphic Chess by downloading the sources code and running:
+
+```
+python main.py
+```
+
+Enjoy the game!
 
 ## Features
 
@@ -13,15 +23,7 @@ Graphic Chess is a GUI chess game implemented in python
 - Handling pawn promotion & enpassant
 - Dumb AI
 
-## Installation
 
-Install Graphic Chess by downloading the sources code and running:
-
-```
-python main.py
-```
-
-Enjoy the game!
 
 ## Instructions
 
