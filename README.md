@@ -1,6 +1,8 @@
 # Graphic Chess
 
 Graphic Chess is a GUI chess game implemented in simple graphics.py of python
+<img src="https://github.com/tthuwng/grapic-chess/blob/main/assets/demo-1.png" width="300" />
+<img src="https://github.com/tthuwng/grapic-chess/blob/main/assets/demo-2.png" width="300" />
 
 ## Installation
 
